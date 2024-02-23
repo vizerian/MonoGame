@@ -16,7 +16,7 @@ namespace Microsoft.Xna.Framework.Content
         public static GraphicsDevice GetGraphicsDevice(this ContentReader contentReader)
         {
             var serviceProvider = contentReader.ContentManager.ServiceProvider;
-            var graphicsDeviceService = serviceProvider.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
+            var graphicsDeviceService = serviceProvider.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
             if (graphicsDeviceService == null)
                 throw new InvalidOperationException("No Graphics Device Service");
 

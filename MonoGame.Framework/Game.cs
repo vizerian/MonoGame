@@ -46,8 +46,7 @@ namespace Microsoft.Xna.Framework
                 (u, handler) => u.UpdateOrderChanged += handler,
                 (u, handler) => u.UpdateOrderChanged -= handler);
 
-        private IGraphicsDeviceManager _graphicsDeviceManager;
-        private IGraphicsDeviceService _graphicsDeviceService;
+        private GraphicsDeviceManager _graphicsDeviceManager;
 
         private bool _initialized = false;
         private bool _isFixedTimeStep = true;
@@ -78,6 +77,8 @@ namespace Microsoft.Xna.Framework
             Platform.Activated += OnActivated;
             Platform.Deactivated += OnDeactivated;
             _services.AddService(typeof(GamePlatform), Platform);
+
+            _graphicsDeviceManager = new GraphicsDeviceManager(this);
 
             // Calling Update() for first time initializes some systems
             FrameworkDispatcher.Update();
@@ -217,7 +218,7 @@ namespace Microsoft.Xna.Framework
                 if (value < TimeSpan.Zero)
                     throw new ArgumentOutOfRangeException(
                         "The time must be positive.");
-                
+
                 if (value < _targetElapsedTime)
                     throw new ArgumentOutOfRangeException(
                         "The time must be at least TargetElapsedTime");
@@ -275,7 +276,7 @@ namespace Microsoft.Xna.Framework
 
         /// <summary>
         /// Indicates if this game is running with a fixed time between frames.
-        /// 
+        ///
         /// When set to <code>true</code> the target time between frames is
         /// given by <see cref="TargetElapsedTime"/>.
         /// </summary>
@@ -315,21 +316,7 @@ namespace Microsoft.Xna.Framework
         /// <exception cref="InvalidOperationException">
         /// There is no <see cref="Graphics.GraphicsDevice"/> attached to this <see cref="Game"/>.
         /// </exception>
-        public GraphicsDevice GraphicsDevice
-        {
-            get
-            {
-                if (_graphicsDeviceService == null)
-                {
-                    _graphicsDeviceService = (IGraphicsDeviceService)
-                        Services.GetService(typeof(IGraphicsDeviceService));
-
-                    if (_graphicsDeviceService == null)
-                        throw new InvalidOperationException("No Graphics Device Service");
-                }
-                return _graphicsDeviceService.GraphicsDevice;
-            }
-        }
+        public GraphicsDevice GraphicsDevice => _graphicsDeviceManager.GraphicsDevice;
 
         /// <summary>
         /// The system window that this game is displayed on.
@@ -421,7 +408,7 @@ namespace Microsoft.Xna.Framework
         {
             _suppressDraw = true;
         }
-        
+
         /// <summary>
         /// Run the game for one frame, then exit.
         /// </summary>
@@ -440,7 +427,7 @@ namespace Microsoft.Xna.Framework
                 _initialized = true;
             }
 
-            BeginRun();            
+            BeginRun();
 
             //Not quite right..
             Tick ();
@@ -518,8 +505,8 @@ namespace Microsoft.Xna.Framework
         public void Tick()
         {
             // NOTE: This code is very sensitive and can break very badly
-            // with even what looks like a safe change.  Be sure to test 
-            // any change fully in both the fixed and variable timestep 
+            // with even what looks like a safe change.  Be sure to test
+            // any change fully in both the fixed and variable timestep
             // modes across multiple devices and platforms.
 
         RetryTick:
@@ -691,11 +678,7 @@ namespace Microsoft.Xna.Framework
             // Initialize all existing components
             InitializeExistingComponents();
 
-            _graphicsDeviceService = (IGraphicsDeviceService)
-                Services.GetService(typeof(IGraphicsDeviceService));
-
-            if (_graphicsDeviceService != null &&
-                _graphicsDeviceService.GraphicsDevice != null)
+            if (GraphicsDevice != null)
             {
                 LoadContent();
             }
@@ -741,7 +724,7 @@ namespace Microsoft.Xna.Framework
         {
             EventHelpers.Raise(sender, Exiting, args);
         }
-		
+
         /// <summary>
         /// Called when the game gains focus. Raises the <see cref="Activated"/> event.
         /// </summary>
@@ -752,7 +735,7 @@ namespace Microsoft.Xna.Framework
 			AssertNotDisposed();
             EventHelpers.Raise(sender, Activated, args);
 		}
-		
+
         /// <summary>
         /// Called when the game loses focus. Raises the <see cref="Deactivated"/> event.
         /// </summary>
@@ -802,7 +785,7 @@ namespace Microsoft.Xna.Framework
         //        be added by third parties without changing MonoGame itself.
 
 #if !(WINDOWS && DIRECTX)
-        internal void applyChanges(GraphicsDeviceManager manager)
+        internal void applyChanges(IGraphicsDeviceManager manager)
         {
 			Platform.BeginScreenDeviceChange(GraphicsDevice.PresentationParameters.IsFullScreen);
 
@@ -825,7 +808,7 @@ namespace Microsoft.Xna.Framework
             if (Platform.BeforeUpdate(gameTime))
             {
                 FrameworkDispatcher.Update();
-				
+
                 Update(gameTime);
 
                 //The TouchPanel needs to know the time for when touches arrive
@@ -859,7 +842,7 @@ namespace Microsoft.Xna.Framework
             // 1. Categorize components into IUpdateable and IDrawable lists.
             // 2. Subscribe to Added/Removed events to keep the categorized
             //    lists synced and to Initialize future components as they are
-            //    added.            
+            //    added.
             CategorizeComponents();
             _components.ComponentAdded += Components_ComponentAdded;
             _components.ComponentRemoved += Components_ComponentRemoved;
@@ -873,24 +856,7 @@ namespace Microsoft.Xna.Framework
 
         #endregion Internal Methods
 
-        internal GraphicsDeviceManager graphicsDeviceManager
-        {
-            get
-            {
-                if (_graphicsDeviceManager == null)
-                {
-                    _graphicsDeviceManager = (IGraphicsDeviceManager)
-                        Services.GetService(typeof(IGraphicsDeviceManager));
-                }
-                return (GraphicsDeviceManager)_graphicsDeviceManager;
-            }
-            set
-            {
-                if (_graphicsDeviceManager != null)
-                    throw new InvalidOperationException("GraphicsDeviceManager already registered for this Game object");
-                _graphicsDeviceManager = value;
-            }
-        }
+        internal IGraphicsDeviceManager graphicsDeviceManager => _graphicsDeviceManager;
 
         // NOTE: InitializeExistingComponents really should only be called once.
         //       Game.Initialize is the only method in a position to guarantee

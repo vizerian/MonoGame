@@ -13,7 +13,7 @@ namespace Microsoft.Xna.Framework
     /// </summary>
     [DataContract]
     [DebuggerDisplay("{DebugDisplayString,nq}")]
-    public struct Rectangle : IEquatable<Rectangle>
+    public struct Rectangle : IEquatable<Rectangle>, IEquatableByRef<Rectangle>
     {
         #region Private Fields
 
@@ -332,6 +332,17 @@ namespace Microsoft.Xna.Framework
         {
             return this == other;
         }
+
+        /// <summary>
+        ///     Indicates whether the current value or object is equal to another value or object of the same type by
+        ///     reference.
+        /// </summary>
+        /// <returns>
+        ///     <c>true</c> if the current value or object is equal to the <paramref name="other" /> parameter; otherwise,
+        ///     <c>false</c>.
+        /// </returns>
+        /// <param name="other">A value or object to compare with this value or object.</param>
+        public bool Equals(ref Rectangle other) => X == other.X && Y == other.Y && Width == other.Width && Height == other.Height;
 
         /// <summary>
         /// Gets the hash code of this <see cref="Rectangle"/>.

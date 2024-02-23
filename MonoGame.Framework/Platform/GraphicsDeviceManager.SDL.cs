@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Microsoft.Xna.Framework
 {
-    public partial class GraphicsDeviceManager
+    internal partial class GraphicsDeviceManager
     {
         partial void PlatformInitialize(PresentationParameters presentationParameters)
         {
