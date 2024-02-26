@@ -11,7 +11,7 @@ namespace Microsoft.Xna.Framework
     /// <summary>
     /// Used to initialize and control the presentation of the graphics device.
     /// </summary>
-    internal partial class GraphicsDeviceManager : IDisposable, IGraphicsDeviceManager
+    public partial class GraphicsDeviceManager : IDisposable, IGraphicsDeviceManager
     {
         private readonly Game _game;
         private GraphicsDevice _graphicsDevice;
@@ -52,7 +52,7 @@ namespace Microsoft.Xna.Framework
         /// Associates this graphics device manager to a game instances.
         /// </summary>
         /// <param name="game">The game instance to attach.</param>
-        public GraphicsDeviceManager(Game game)
+        internal GraphicsDeviceManager(Game game)
         {
             if (game == null)
                 throw new ArgumentNullException("game", "Game cannot be null.");

@@ -16,7 +16,7 @@ using Android.Views;
 
 namespace Microsoft.Xna.Framework
 {
-    public class GraphicsDeviceManager : IGraphicsDeviceService, IDisposable, IGraphicsDeviceManager
+    public class GraphicsDeviceManager : IDisposable, IGraphicsDeviceManager
     {
         private Game _game;
         private GraphicsDevice _graphicsDevice;
@@ -42,7 +42,7 @@ namespace Microsoft.Xna.Framework
         public static readonly int DefaultBackBufferHeight = 480;
         public static readonly int DefaultBackBufferWidth = 800;
 
-        public GraphicsDeviceManager(Game game)
+        internal GraphicsDeviceManager(Game game)
         {
             if (game == null)
                 throw new ArgumentNullException("The game cannot be null!");
@@ -69,12 +69,6 @@ namespace Microsoft.Xna.Framework
             // XNA would read this from the manifest, but it would always default
             // to Reach unless changed.  So lets mimic that without the manifest bit.
             GraphicsProfile = GraphicsProfile.Reach;
-
-            if (_game.Services.GetService(typeof(IGraphicsDeviceManager)) != null)
-                throw new ArgumentException("Graphics Device Manager Already Present");
-
-            _game.Services.AddService(typeof(IGraphicsDeviceManager), this);
-            _game.Services.AddService(typeof(IGraphicsDeviceService), this);
         }
 
         ~GraphicsDeviceManager()
@@ -186,9 +180,9 @@ namespace Microsoft.Xna.Framework
             _graphicsDevice.PresentationParameters.BackBufferWidth = _preferredBackBufferWidth;
             _graphicsDevice.PresentationParameters.BackBufferHeight = _preferredBackBufferHeight;
             _graphicsDevice.PresentationParameters.DepthStencilFormat = _preferredDepthStencilFormat;
-            
+
             // TODO: We probably should be resetting the whole device
-            // if this changes as we are targeting a different 
+            // if this changes as we are targeting a different
             // hardware feature level.
             _graphicsDevice.GraphicsProfile = GraphicsProfile;
 
@@ -229,7 +223,7 @@ namespace Microsoft.Xna.Framework
             _graphicsDevice.PresentationParameters.PresentationInterval = _synchronizedWithVerticalRetrace ? PresentInterval.Default : PresentInterval.Immediate;
             _graphicsDevice.PresentationParameters.IsFullScreen = _wantFullScreen;
 
-            // TODO: We probably should be resetting the whole 
+            // TODO: We probably should be resetting the whole
             // device if this changes as we are targeting a different
             // hardware feature level.
             _graphicsDevice.GraphicsProfile = GraphicsProfile;
@@ -295,8 +289,8 @@ namespace Microsoft.Xna.Framework
 
             // Set the new display size on the touch panel.
             //
-            // TODO: In XNA this seems to be done as part of the 
-            // GraphicsDevice.DeviceReset event... we need to get 
+            // TODO: In XNA this seems to be done as part of the
+            // GraphicsDevice.DeviceReset event... we need to get
             // those working.
             //
             TouchPanel.DisplayWidth = _graphicsDevice.PresentationParameters.BackBufferWidth;
@@ -371,14 +365,18 @@ namespace Microsoft.Xna.Framework
             // Needs to be before ApplyChanges()
             _graphicsDevice = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile, this.PreferHalfPixelOffset, presentationParameters);
 
+            // hook up reset events
+            _graphicsDevice.DeviceReset += (sender, args) => OnDeviceReset(args);
+            _graphicsDevice.DeviceResetting += (sender, args) => OnDeviceResetting(args);
+
 #if !MONOMAC
             ApplyChanges();
 #endif
 
             // Set the new display size on the touch panel.
             //
-            // TODO: In XNA this seems to be done as part of the 
-            // GraphicsDevice.DeviceReset event... we need to get 
+            // TODO: In XNA this seems to be done as part of the
+            // GraphicsDevice.DeviceReset event... we need to get
             // those working.
             //
             TouchPanel.DisplayWidth = _graphicsDevice.PresentationParameters.BackBufferWidth;
@@ -402,6 +400,13 @@ namespace Microsoft.Xna.Framework
 #endif
 
         public GraphicsProfile GraphicsProfile { get; set; }
+
+        /// <inheritdoc />
+        public bool AllowResize
+        {
+            get => _game.Window.AllowUserResizing;
+            set => _game.Window.AllowUserResizing = value;
+        }
 
         public GraphicsDevice GraphicsDevice
         {
@@ -446,6 +451,27 @@ namespace Microsoft.Xna.Framework
             }
         }
 
+        /// <inheritdoc />
+        public bool IsMouseVisible
+        {
+            get => _game.IsMouseVisible;
+            set => _game.IsMouseVisible = value;
+        }
+
+        /// <inheritdoc />
+        public bool IsFixedTimeStep
+        {
+            get => _game.IsFixedTimeStep;
+            set => _game.IsFixedTimeStep = value;
+        }
+
+        /// <inheritdoc />
+        public TimeSpan TargetElapsedTime
+        {
+            get => _game.TargetElapsedTime;
+            set => _game.TargetElapsedTime = value;
+        }
+
 #if ANDROID
         internal void ForceSetFullScreen()
         {
@@ -458,7 +484,7 @@ namespace Microsoft.Xna.Framework
                 Game.Activity.Window.SetFlags(WindowManagerFlags.ForceNotFullscreen, WindowManagerFlags.ForceNotFullscreen);
         }
 #endif
-        
+
         /// <summary>
         /// Indicates if DX9 style pixel addressing or current standard
         /// pixel addressing should be used. This flag is set to
@@ -602,7 +628,7 @@ namespace Microsoft.Xna.Framework
 #if ANDROID
             float preferredAspectRatio = (float)PreferredBackBufferWidth /
                                          (float)PreferredBackBufferHeight;
-            float displayAspectRatio = (float)GraphicsDevice.DisplayMode.Width / 
+            float displayAspectRatio = (float)GraphicsDevice.DisplayMode.Width /
                                        (float)GraphicsDevice.DisplayMode.Height;
 
             float adjustedAspectRatio = preferredAspectRatio;

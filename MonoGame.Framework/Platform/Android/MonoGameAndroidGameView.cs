@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
@@ -27,7 +28,7 @@ namespace Microsoft.Xna.Framework
         {
             Pausing_UIThread,  // set by android UI thread and the game thread process it and transitions into 'Paused' state
             Resuming_UIThread, // set by android UI thread and the game thread process it and transitions into 'Running' state
-            Exiting,           // set either by game or android UI thread and the game thread process it and transitions into 'Exited' state          
+            Exiting,           // set either by game or android UI thread and the game thread process it and transitions into 'Exited' state
 
             Paused_GameThread,  // set by game thread after processing 'Pausing' state
             Running_GameThread, // set by game thread after processing 'Resuming' state
@@ -104,7 +105,7 @@ namespace Microsoft.Xna.Framework
 
         public void SurfaceChanged(ISurfaceHolder holder, global::Android.Graphics.Format format, int width, int height)
         {
-            // Set flag to recreate gl surface or rendering can be bad on orientation change or if app 
+            // Set flag to recreate gl surface or rendering can be bad on orientation change or if app
             // is closed in one orientation and re-opened in another.
             lock (_lockObject)
             {
@@ -218,7 +219,7 @@ namespace Microsoft.Xna.Framework
         {
             EnsureUndisposed();
 
-            // if triggered in quick succession and blocked by graphics device creation, 
+            // if triggered in quick succession and blocked by graphics device creation,
             // pause can be triggered twice, without resume in between on some phones.
             if (_internalState != InternalState.Running_GameThread)
             {
@@ -476,7 +477,7 @@ namespace Microsoft.Xna.Framework
             }
 
             // this can happen if pause is triggered immediately after resume so that SurfaceCreated callback doesn't get called yet,
-            // in this case we skip the resume process and pause sets a new state.   
+            // in this case we skip the resume process and pause sets a new state.
             lock (_lockObject)
             {
                 if (!androidSurfaceAvailable)
@@ -504,7 +505,7 @@ namespace Microsoft.Xna.Framework
                     if (lostglContext || glContextAvailable)
                     {
                         // we actually lost the context
-                        // so we need to free up our existing 
+                        // so we need to free up our existing
                         // objects and re-create one.
                         DestroyGLContext();
                         contextLost = true;
@@ -603,7 +604,7 @@ namespace Microsoft.Xna.Framework
                     break;
 
                 // pause states
-                case InternalState.Pausing_UIThread: // when ui thread wants to pause              
+                case InternalState.Pausing_UIThread: // when ui thread wants to pause
                     processStatePausing();
                     break;
 
@@ -623,7 +624,7 @@ namespace Microsoft.Xna.Framework
                     }
                     break;
 
-                case InternalState.Running_GameThread: // when we are running game 
+                case InternalState.Running_GameThread: // when we are running game
                     processStateRunning(token);
 
                     break;
@@ -896,7 +897,7 @@ namespace Microsoft.Xna.Framework
             int stencil = 0;
             int sampleBuffers = 0;
             int samples = 0;
-            switch (_game.graphicsDeviceManager.PreferredDepthStencilFormat)
+            switch (_game.GraphicsDeviceManager.PreferredDepthStencilFormat)
             {
                 case DepthFormat.Depth16:
                     depth = 16;
@@ -912,7 +913,7 @@ namespace Microsoft.Xna.Framework
                     break;
             }
 
-            if (_game.graphicsDeviceManager.PreferMultiSampling)
+            if (_game.GraphicsDeviceManager.PreferMultiSampling)
             {
                 sampleBuffers = 1;
                 samples = 4;
@@ -1057,7 +1058,7 @@ namespace Microsoft.Xna.Framework
                     // Must set viewport after creation, the viewport has correct values in it already as we call it, but
                     // the surface is created after the correct viewport is already applied so we must do it again.
                     if (_game.GraphicsDevice != null)
-                        _game.graphicsDeviceManager.ResetClientBounds();
+                        _game.GraphicsDeviceManager.ResetClientBounds();
 
                     if (MonoGame.OpenGL.GL.GetError == null)
                         MonoGame.OpenGL.GL.LoadEntryPoints();
@@ -1101,8 +1102,6 @@ namespace Microsoft.Xna.Framework
                             Microsoft.Xna.Framework.Content.ContentManager.ReloadGraphicsContent();
                             Android.Util.Log.Debug("MonoGame", "End reloading graphics content");
 
-                            // DeviceReset events
-                            _game.graphicsDeviceManager.OnDeviceReset(EventArgs.Empty);
                             _game.GraphicsDevice.OnDeviceReset();
 
                             IsResuming = false;
@@ -1116,10 +1115,10 @@ namespace Microsoft.Xna.Framework
 
         protected void ContextLostInternal()
         {
+            Debug.Assert(_game.GraphicsDevice == null);
+
             OnContextLost(EventArgs.Empty);
-            _game.graphicsDeviceManager.OnDeviceResetting(EventArgs.Empty);
-            if (_game.GraphicsDevice != null)
-                _game.GraphicsDevice.OnDeviceResetting();
+            _game.GraphicsDevice?.OnDeviceResetting();
         }
 
         protected virtual void OnContextLost(EventArgs eventArgs)

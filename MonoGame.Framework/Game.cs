@@ -668,7 +668,7 @@ namespace Microsoft.Xna.Framework
         {
             // TODO: This should be removed once all platforms use the new GraphicsDeviceManager
 #if !(WINDOWS && DIRECTX)
-            applyChanges(graphicsDeviceManager);
+            applyChanges(GraphicsDeviceManager);
 #endif
 
             // According to the information given on MSDN (see link below), all
@@ -832,7 +832,7 @@ namespace Microsoft.Xna.Framework
         internal void DoInitialize()
         {
             AssertNotDisposed();
-            if (GraphicsDevice == null && graphicsDeviceManager != null)
+            if (GraphicsDevice == null && GraphicsDeviceManager != null)
                 _graphicsDeviceManager.CreateDevice();
 
             Platform.BeforeInitialize();
@@ -856,7 +856,10 @@ namespace Microsoft.Xna.Framework
 
         #endregion Internal Methods
 
-        internal IGraphicsDeviceManager graphicsDeviceManager => _graphicsDeviceManager;
+        /// <summary>
+        ///     The <see cref="IGraphicsDeviceManager"/> of the <see cref="Game"/>.
+        /// </summary>
+        public GraphicsDeviceManager GraphicsDeviceManager => _graphicsDeviceManager;
 
         // NOTE: InitializeExistingComponents really should only be called once.
         //       Game.Initialize is the only method in a position to guarantee

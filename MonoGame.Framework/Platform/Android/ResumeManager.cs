@@ -12,15 +12,15 @@ namespace Microsoft.Xna.Framework
     /// <summary>
     /// A default implementation of IResumeManager. Loads a user specified
     /// image file (eg png) and draws it the middle of the screen.
-    /// 
+    ///
     /// Example usage in Game.Initialise():
-    /// 
+    ///
     /// #if ANDROID
-    ///    this.Window.SetResumer(new ResumeManager(this.Services, 
-    ///                                             spriteBatch, 
+    ///    this.Window.SetResumer(new ResumeManager(this.Services,
+    ///                                             spriteBatch,
     ///                                             "UI/ResumingTexture",
     ///                                             1.0f, 0.01f));
-    /// #endif                                         
+    /// #endif
     /// </summary>
     public class ResumeManager : IResumeManager
     {
@@ -40,7 +40,7 @@ namespace Microsoft.Xna.Framework
                              float rotateSpeed)
         {
             this.content = new ContentManager(services, "Content");
-            this.device = ((IGraphicsDeviceService)services.GetService(typeof(IGraphicsDeviceService))).GraphicsDevice;
+            this.device = ((IGraphicsDeviceManager)services.GetService(typeof(IGraphicsDeviceManager))).GraphicsDevice;
             this.spriteBatch = spriteBatch;
             this.resumeTextureName = resumeTextureName;
             this.scale = scale;
@@ -65,7 +65,7 @@ namespace Microsoft.Xna.Framework
             // Draw the resume texture in the middle of the screen and make it spin
             spriteBatch.Begin();
             spriteBatch.Draw(resumeTexture,
-                            new Vector2(sw / 2, sh / 2), 
+                            new Vector2(sw / 2, sh / 2),
                             null, Color.White, rotation,
                             new Vector2(tw / 2, th / 2),
                             scale, SpriteEffects.None, 0.0f);
