@@ -58,7 +58,7 @@ namespace Microsoft.Xna.Framework
         private void Initialize(Context context, Point size)
         {
             _clientBounds = new Rectangle(0, 0, size.X, size.Y);
-            
+
             GameView = new MonoGameAndroidGameView(context, this, _game);
             GameView.RenderOnUIThread = Game.Activity.RenderOnUIThread;
             GameView.RenderFrame += OnRenderFrame;
@@ -119,7 +119,7 @@ namespace Microsoft.Xna.Framework
         {
             if (_supportedOrientations == DisplayOrientation.Default)
             {
-                var deviceManager = (_game.Services.GetService(typeof(IGraphicsDeviceManager)) as GraphicsDeviceManager);
+                var deviceManager = _game.GraphicsDeviceManager;
                 if (deviceManager == null)
                     return DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
 
@@ -232,7 +232,7 @@ namespace Microsoft.Xna.Framework
             }
         }
 
-        
+
         private void SetDisplayOrientation(DisplayOrientation value)
         {
             if (value != _currentOrientation)

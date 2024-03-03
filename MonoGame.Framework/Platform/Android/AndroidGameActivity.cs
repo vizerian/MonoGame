@@ -19,7 +19,7 @@ namespace Microsoft.Xna.Framework
         private OrientationListener _orientationListener;
 
         public bool AutoPauseAndResumeMediaPlayer = true;
-        public bool RenderOnUIThread = true; 
+        public bool RenderOnUIThread = true;
 
 		/// <summary>
 		/// OnCreate called when the activity is launched from cold or after the app
@@ -37,7 +37,7 @@ namespace Microsoft.Xna.Framework
 		    filter.AddAction(Intent.ActionScreenOff);
 		    filter.AddAction(Intent.ActionScreenOn);
 		    filter.AddAction(Intent.ActionUserPresent);
-		    
+
 		    screenReceiver = new ScreenReceiver();
 		    RegisterReceiver(screenReceiver, filter);
 
@@ -71,10 +71,10 @@ namespace Microsoft.Xna.Framework
 
             if (Game != null)
             {
-                var deviceManager = (IGraphicsDeviceManager)Game.Services.GetService(typeof(IGraphicsDeviceManager));
+                var deviceManager = Game.GraphicsDeviceManager;
                 if (deviceManager == null)
                     return;
-                ((GraphicsDeviceManager)deviceManager).ForceSetFullScreen();
+                deviceManager.ForceSetFullScreen();
                 ((AndroidGameWindow)Game.Window).GameView.RequestFocus();
                 if (_orientationListener.CanDetectOrientation())
                     _orientationListener.Enable();
@@ -97,7 +97,7 @@ namespace Microsoft.Xna.Framework
 	public static class ActivityExtensions
     {
         public static ActivityAttribute GetActivityAttribute(this AndroidGameActivity obj)
-        {			
+        {
             var attr = obj.GetType().GetCustomAttributes(typeof(ActivityAttribute), true);
 			if (attr != null)
 			{

@@ -71,12 +71,10 @@ namespace Microsoft.Xna.Framework
             LaunchParameters = new LaunchParameters();
             _services = new GameServiceContainer();
             _components = new GameComponentCollection();
-            _content = new ContentManager(_services);
 
             Platform = GamePlatform.PlatformCreate(this);
             Platform.Activated += OnActivated;
             Platform.Deactivated += OnDeactivated;
-            _services.AddService(typeof(GamePlatform), Platform);
 
             _graphicsDeviceManager = new GraphicsDeviceManager(this);
 
@@ -140,7 +138,6 @@ namespace Microsoft.Xna.Framework
                     {
                         Platform.Activated -= OnActivated;
                         Platform.Deactivated -= OnDeactivated;
-                        _services.RemoveService(typeof(GamePlatform));
 
                         Platform.Dispose();
                         Platform = null;
@@ -291,23 +288,6 @@ namespace Microsoft.Xna.Framework
         /// </summary>
         public GameServiceContainer Services {
             get { return _services; }
-        }
-
-
-        /// <summary>
-        /// The <see cref="ContentManager"/> of this <see cref="Game"/>.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">If Content is set to <code>null</code>.</exception>
-        public ContentManager Content
-        {
-            get { return _content; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException();
-
-                _content = value;
-            }
         }
 
         /// <summary>
